@@ -2,8 +2,11 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "./openzeppelin/access/Ownable.sol";
+import "./device.sol";
 
-contract leasehold is Ownable {
+
+contract leasehold is Ownable, device {
+
     struct Role {
         uint256 amount; // 余额
         address id;
@@ -26,6 +29,8 @@ contract leasehold is Ownable {
         bytes description;     //描述
     }
 
+    mapping (bytes => mapping (address => bytes)) devices;
+
     struct Order {
         address from;
         address property;
@@ -39,7 +44,6 @@ contract leasehold is Ownable {
 
     mapping (address => Role) users;
     mapping (bytes => Room) rooms;
-    mapping (bytes => mapping (address => bytes)) devices;
 
     Order[] allOrders; // 所有订单
     mapping(address => mapping(address => uint256[])) availableOrders;
@@ -122,6 +126,7 @@ contract leasehold is Ownable {
         emit EvtRecordRoomRegister(msg.sender, property, factory, location, price, area, status, description);
     }
 
+    // 装修时调用 registerDevice 将厂家设备进行注册
     function updateRoomInfo(address property, address factory, bytes memory location,
         uint256 price, bytes memory area, uint8 nextStatus, bytes memory description) public payable {
         Room memory myRoom = rooms[location];
@@ -135,3 +140,4 @@ contract leasehold is Ownable {
     }
 
 }
+

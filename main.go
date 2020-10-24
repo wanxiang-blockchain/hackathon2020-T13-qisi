@@ -6,19 +6,13 @@ import (
 )
 
 func main() {
-	module := flag.String("module", "SettledChain", "选择测试的模块, 默认为test")
+	module := flag.String("module", "test", "选择测试的模块, 默认为test")
 
 	flag.Parse()
 
-	//if *module == "test" {
-	//	check.Test()
-	//}
-
-	//if *module == "atom" {
-	//	check.Atom()
-	//}
-
-	if *module == "SettledChain" {
-		check.Settled()
+	if *module == "test" {
+		check.Test()
 	}
+
+
 }
