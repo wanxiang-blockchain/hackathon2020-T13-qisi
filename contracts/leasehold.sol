@@ -6,6 +6,7 @@ import "./device.sol";
 
 
 contract leasehold is Ownable, device {
+
     struct Role {
         uint256 amount; // 余额
         address id;
@@ -51,7 +52,7 @@ contract leasehold is Ownable, device {
     event EvtTransfer(address to, uint256 amount);
     event EvtRecordRoomRegister(address owner, address property, address factory, bytes location,
         uint256 price, bytes area, uint8 status, bytes description);
-    
+
     function makeOrder(address to, bytes memory location, int64 startAt, int64 endAt, uint256 funds) public payable {
         Room memory myRoom = getRoom(location);
         require(myRoom.status == 2, "location room is not exists.");
@@ -99,7 +100,7 @@ contract leasehold is Ownable, device {
         shareMoney(myOrder.location, myOrder.funds);
         allOrders[orderId].status = 3; // 完成
     }
-    
+
     function shareMoney(bytes memory location, uint256 funds) private { // 对订单资金进行分配
         Room memory orderRoom = rooms[location];
         transfer(orderRoom.landlord, funds * 10 / 7);
@@ -111,7 +112,7 @@ contract leasehold is Ownable, device {
         // TODO use safeMath
         users[to].amount += amount;
     }
-    
+
     // Room Register Function
     function roomRegister(address property, address factory, bytes memory location,
         uint256 price, bytes memory area, uint8 status, bytes memory description) public  {
