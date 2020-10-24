@@ -1,1 +1,0 @@
-# hackathon2020-T13-qisi

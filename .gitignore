@@ -1,0 +1,11 @@
+build
+#bin
+.idea
+log
+.DS_Store
+*/data
+*/log
+nodes
+keys_certs/
+vendor
+.vscode
