@@ -21,6 +21,7 @@ import (
 
 var (
 	callOpts = &bind.CallOpts{GroupId: 1, From: common.HexToAddress("0x100")}
+	watchOpts = &bind.WatchOpts{Start: new(uint64), Context: context.Background()}
 	GethCli  *client.Client
 	tx       *types.Transaction
 	err      error
@@ -33,8 +34,8 @@ func init() {
 		CAFile:     "./nodes/127.0.0.1/sdk/ca.crt",
 		CertFile:   "./nodes/127.0.0.1/sdk/node.crt",
 		KeyFile:    "./nodes/127.0.0.1/sdk/node.key",
-		Endpoint:   "http://127.0.0.1:8545",
-		UseChannel: false,
+		Endpoint:   "127.0.0.1:20200",
+		UseChannel: true,
 		GroupID:    1,
 	}
 	GethCli, err = client.New(conf)
