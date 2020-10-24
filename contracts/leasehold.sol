@@ -112,6 +112,10 @@ contract leasehold is Ownable {
     // Room Register Function
     function roomRegister(address property, address factory, bytes memory location,
         uint256 price, bytes memory area, uint8 status, bytes memory description) public  {
+        //Check room  Register
+        require(location.length != 0, "room's location  must be not null");
+        Room memory room = rooms[location];
+        require(room.location.length == 0, "room has been regist");
         //存储房东入驻的房屋信息
         rooms[location] = Room(msg.sender, property, factory, location, price, area, status, description);
         //记录放我注册事件到链上
