@@ -7,6 +7,8 @@ SOLC = solc:0.6.0
 deps:
 	rm -rf build
 	$(call compile,leasehold)
+	$(call compile,device)
+
 
 init:
 	rm -rf bin nodes build vendor && mkdir -p bin build/hello && cp -r hello build/hello
