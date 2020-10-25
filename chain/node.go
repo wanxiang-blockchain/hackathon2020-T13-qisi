@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	sdkPath := "/Users/echo/worksapce/leasehold/nodes/127.0.0.1/sdk/"
+	sdkPath := "./nodes/127.0.0.1/sdk/"
 	conf := &client.Config{
 		CAFile:     sdkPath + "ca.crt",
 		CertFile:   sdkPath + "node.crt",
