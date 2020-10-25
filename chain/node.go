@@ -51,8 +51,8 @@ func init() {
 
 	_, tx, dLeaseHold, err = leasehold.DeployLeasehold(auths["admin"], GethCli)
 	fmt.Println("DeployLeasehold", tx.Hash().String())
+	_, err = dLeaseHold.WatchEvtOrderMade(watchOpts, chOrderMake)
 }
-
 
 func HandleMakeOrder(c *gin.Context) {
 	var req ReqOrder
@@ -64,5 +64,71 @@ func HandleMakeOrder(c *gin.Context) {
 	// from, to, location, startAt, endAt, funds
 	tx, err = dLeaseHold.MakeOrder(auths[req.From], auths[req.To].From,
 		str2bytes(req.Location), req.StartAt, req.EndAt, big.NewInt(req.Funds))
+	err = GethCli.CheckTx(context.Background(), tx)
+	if err != nil {
+		c.JSON(400, gin.H{"err": err.Error()})
+		return
+	}
+	evt := <- chOrderMake
+	fmt.Println("OrderId", evt.OrderId)
+	c.JSON(200, gin.H{"tx_hash": tx.Hash()})
+}
+
+func HandleConfirmOrder(c *gin.Context) {
+	var req ReqConfirm
+	err := c.BindJSON(&req)
+	if err != nil {
+		c.JSON(400, nil)
+		return
+	}
+	tx, err = dLeaseHold.ConfirmOrder(auths[req.Property], big.NewInt(req.OrderId))
+	err = GethCli.CheckTx(context.Background(), tx)
+	if err != nil {
+		c.JSON(400, gin.H{"err": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"tx_hash": tx.Hash()})
+}
+
+func HandleBalance(c *gin.Context) {
+	user := c.PostForm("user")
+	balance, _ :=dLeaseHold.BalanceOf(callOpts, auths[user].From)
+	c.JSON(200, gin.H{"user": user, "balance": balance.Uint64()})
+}
+
+// 房东注册房子
+func HandleRegisterRoom(c *gin.Context) {
+	var req ReqRegisterRoom
+	err := c.BindJSON(&req)
+	if err != nil {
+		c.JSON(400, nil)
+		return
+	}
+
+	tx, _ = dLeaseHold.RoomRegister(auths[req.Landlord], auths[req.Property].From, auths[req.Factory].From,
+		str2bytes(req.Location), big.NewInt(req.Price), str2bytes(req.Area), req.Status, str2bytes(req.Description))
+	err = GethCli.CheckTx(context.Background(), tx)
+	if err != nil {
+		c.JSON(400, gin.H{"err": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"tx_hash": tx.Hash()})
+}
+
+// 平台/厂商装修房子
+func HandleFixRoom(c *gin.Context) {
+	var req ReqRegisterRoom
+	err := c.BindJSON(&req)
+	if err != nil {
+		c.JSON(400, nil)
+		return
+	}
+
+	tx, err = dLeaseHold.UpdateRoomInfo(auths[req.Property], auths[req.Property].From, auths[req.Factory].From,
+		str2bytes(req.Location), big.NewInt(req.Price), str2bytes(req.Area), req.Status, str2bytes(req.Description))
+	if err != nil {
+		c.JSON(400, gin.H{"err": err.Error()})
+		return
+	}
 	c.JSON(200, gin.H{"tx_hash": tx.Hash()})
 }
