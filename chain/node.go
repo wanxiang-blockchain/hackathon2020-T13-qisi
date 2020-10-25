@@ -14,16 +14,16 @@ import (
 )
 
 var (
-	GethCli  *client.Client
+	GethCli *client.Client
 
-	callOpts = &bind.CallOpts{GroupId: 1, From: common.HexToAddress("0x100")}
+	callOpts  = &bind.CallOpts{GroupId: 1, From: common.HexToAddress("0x100")}
 	watchOpts = &bind.WatchOpts{Start: new(uint64), Context: context.Background()}
-	tx       *types.Transaction
-	err      error
-	receipt  *types.Receipt
-	auths	= make(map[string]*bind.TransactOpts)
+	tx        *types.Transaction
+	err       error
+	receipt   *types.Receipt
+	auths     = make(map[string]*bind.TransactOpts)
 
-	dLeaseHold *leasehold.Leasehold
+	dLeaseHold  *leasehold.Leasehold
 	chOrderMake = make(chan *leasehold.LeaseholdEvtOrderMade)
 )
 
@@ -47,6 +47,7 @@ func init() {
 	auths["landlord"] = NewAuthFromPriKey()
 	auths["tenantry"] = NewAuthFromPriKey()
 	auths["property"] = NewAuthFromPriKey()
+	auths["device"] = NewAuthFromPriKey()
 	auths["factory"] = NewAuthFromPriKey()
 
 	_, tx, dLeaseHold, err = leasehold.DeployLeasehold(auths["admin"], GethCli)
