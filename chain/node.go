@@ -9,6 +9,7 @@ import (
 	"github.com/chislab/go-fiscobcos/core/types"
 	"github.com/gin-gonic/gin"
 	"leasehold/contracts/leasehold"
+	"math/big"
 	"os"
 )
 
@@ -54,9 +55,14 @@ func init() {
 
 
 func HandleMakeOrder(c *gin.Context) {
-	height, err := GethCli.BlockNumber(context.Background())
+	var req ReqOrder
+	err := c.BindJSON(&req)
 	if err != nil {
-
+		c.JSON(400, nil)
+		return
 	}
-	c.JSON(200, height.String())
+	// from, to, location, startAt, endAt, funds
+	tx, err = dLeaseHold.MakeOrder(auths[req.From], auths[req.To].From,
+		str2bytes(req.Location), req.StartAt, req.EndAt, big.NewInt(req.Funds))
+	c.JSON(200, gin.H{"tx_hash": tx.Hash()})
 }
