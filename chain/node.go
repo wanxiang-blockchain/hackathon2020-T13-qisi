@@ -11,6 +11,7 @@ import (
 	"leasehold/contracts/leasehold"
 	"math/big"
 	"os"
+	"strconv"
 )
 
 var (
@@ -95,6 +96,18 @@ func HandleBalance(c *gin.Context) {
 	user := c.PostForm("user")
 	balance, _ :=dLeaseHold.BalanceOf(callOpts, auths[user].From)
 	c.JSON(200, gin.H{"user": user, "balance": balance.Uint64()})
+}
+
+func HandleDeviceLog(c *gin.Context) {
+	device := c.PostForm("device")
+	logId := c.PostForm("log_id")
+	id, err := strconv.Atoi(logId)
+	if err != nil {
+		c.JSON(400, gin.H{"err": err.Error()})
+		return
+	}
+	oneLog, _ :=dLeaseHold.GetLog(callOpts, auths[device].From, big.NewInt(int64(id)))
+	c.JSON(200, oneLog)
 }
 
 // 房东注册房子

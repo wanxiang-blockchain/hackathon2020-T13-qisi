@@ -14,6 +14,8 @@ func main() {
 	r.GET("/balance", chain.HandleBalance)
 	r.POST("/register_room", chain.HandleRegisterRoom)
 	r.POST("/update_room", chain.HandleFixRoom)
+	r.GET("/device_log", chain.HandleDeviceLog)
+
 
 	r.Run()
 }
