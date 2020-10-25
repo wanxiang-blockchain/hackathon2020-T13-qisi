@@ -120,7 +120,8 @@ func HandleRegisterRoom(c *gin.Context) {
 	}
 
 	tx, _ = dLeaseHold.RoomRegister(auths[req.Landlord], auths[req.Property].From, auths[req.Factory].From,
-		str2bytes(req.Location), big.NewInt(req.Price), str2bytes(req.Area), req.Status, str2bytes(req.Description))
+		str2bytes(req.Location), big.NewInt(req.Price), str2bytes(req.Area),
+		req.Status, str2bytes(req.Description), []common.Address{})
 	err = GethCli.CheckTx(context.Background(), tx)
 	if err != nil {
 		c.JSON(400, gin.H{"err": err.Error()})
@@ -139,7 +140,8 @@ func HandleFixRoom(c *gin.Context) {
 	}
 
 	tx, err = dLeaseHold.UpdateRoomInfo(auths[req.Property], auths[req.Property].From, auths[req.Factory].From,
-		str2bytes(req.Location), big.NewInt(req.Price), str2bytes(req.Area), req.Status, str2bytes(req.Description))
+		str2bytes(req.Location), big.NewInt(req.Price), str2bytes(req.Area),
+		req.Status, str2bytes(req.Description), []common.Address{})
 	if err != nil {
 		c.JSON(400, gin.H{"err": err.Error()})
 		return

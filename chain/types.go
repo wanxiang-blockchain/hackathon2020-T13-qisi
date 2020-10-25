@@ -7,6 +7,7 @@ type ReqOrder struct {
 	Location string `json:"location"`
 	StartAt  int64  `json:"start_at"`
 	To       string `json:"to"`
+	DeviceIDs []string `json:"device_ids"`
 }
 
 type ReqRegisterRoom struct {
