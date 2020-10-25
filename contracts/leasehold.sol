@@ -8,9 +8,10 @@ import "./device.sol";
 contract leasehold is Ownable, device {
 
     struct Role {
-        uint256 amount; // 余额
+        uint256 funds; // 余额
         address id;
         bytes description;
+
     }
     // tenantry 租户
     // landlord 房东
@@ -27,6 +28,7 @@ contract leasehold is Ownable, device {
         bytes area;      //面积
         uint8 status;  // 0: 未装修, 1: 装修中, 2: 房屋可用, 3: 废弃
         bytes description;     //描述
+        address[] deviceIds;
     }
 
     mapping (bytes => mapping (address => bytes)) devices;
@@ -82,12 +84,15 @@ contract leasehold is Ownable, device {
         return allOrders[orderId];
     }
 
-    function isOrderConflict(uint256 orderId, int64 startAt, int64 endAt) public view returns(bool isValid) {
+    function isOrderConflict(uint256 orderId, int64 startAt, int64 endAt) public view returns(bool isConflict) {
         Order memory myOrder = getOrderStatus(orderId);
-        if ( (startAt >= myOrder.startAt && startAt <= myOrder.endAt) ||
-            (endAt >= myOrder.endAt && endAt <= myOrder.endAt) ) {
-            return true; // 存在订单
+        if (myOrder.status == 1) {
+            if ( (startAt >= myOrder.startAt && startAt <= myOrder.endAt) ||
+                (endAt >= myOrder.endAt && endAt <= myOrder.endAt) ) {
+                return true; // 存在订单
+            }
         }
+        
         return false;
     }
 
@@ -103,36 +108,59 @@ contract leasehold is Ownable, device {
 
     function shareMoney(bytes memory location, uint256 funds) private { // 对订单资金进行分配
         Room memory orderRoom = rooms[location];
-        transfer(orderRoom.landlord, funds * 10 / 7);
-        transfer(orderRoom.property, funds * 10 / 2);
-        transfer(orderRoom.factory, funds * 10 / 1);
+        transfer(orderRoom.landlord, funds * 7 / 10);
+        transfer(orderRoom.property, funds * 2 / 10);
+        transfer(orderRoom.factory, funds *  1 / 10);
     }
 
     function transfer(address to, uint256 amount) private {
         // TODO use safeMath
-        users[to].amount += amount;
+        users[to].funds += amount;
     }
 
     // Room Register Function
     function roomRegister(address property, address factory, bytes memory location,
-        uint256 price, bytes memory area, uint8 status, bytes memory description) public  {
+        uint256 price, bytes memory area, uint8 status, bytes memory description, address[] memory deviceIds) public  {
         //存储房东入驻的房屋信息
-        rooms[location] = Room(msg.sender, property, factory, location, price, area, status, description);
+        Room memory myRoom = rooms[location];
+        rooms[location].factory = factory;
+        rooms[location].factory = factory;
+        rooms[location].location = location;
+        rooms[location].price = price;
+        rooms[location].area = area;
+        rooms[location].status = status;
+        rooms[location].description = description;
+        for (uint256 i = 0; i < deviceIds.length; i++) {
+            rooms[location].deviceIds.push(deviceIds[i]);
+        }
+
         //记录放我注册事件到链上
         emit EvtRecordRoomRegister(msg.sender, property, factory, location, price, area, status, description);
     }
 
     // 装修时调用 registerDevice 将厂家设备进行注册
     function updateRoomInfo(address property, address factory, bytes memory location,
-        uint256 price, bytes memory area, uint8 nextStatus, bytes memory description) public payable {
+        uint256 price, bytes memory area, uint8 nextStatus, bytes memory description, address[] memory deviceIds) public payable {
         Room memory myRoom = rooms[location];
         require(msg.sender == myRoom.property, "只有物业能够修改");
-        rooms[location] = Room(msg.sender, property, factory, location, price, area, nextStatus, description);
+        rooms[location].factory = factory;
+        rooms[location].location = location;
+        rooms[location].price = price;
+        rooms[location].area = area;
+        rooms[location].status = nextStatus;
+        rooms[location].description = description;
+        for (uint256 i = 0; i < deviceIds.length; i++) {
+            rooms[location].deviceIds.push(deviceIds[i]);
+        }
     }
 
     // Get RoomInfo Function
     function getRoom(bytes memory location) public view returns (Room memory roomInfo) {
         return rooms[location];
+    }
+
+    function balanceOf(address to) public view returns(uint256) {
+        return users[to].funds;
     }
 
 }

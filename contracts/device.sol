@@ -35,8 +35,11 @@ contract device {
         require(devLogs[msg.sender][0].createdAt > 0, "[Device](uploadLogs) device doesn't exist.");
         devLogs[msg.sender].push(Power(now, consumption));
     }
+    function getLog(address deviceId, uint256 logId) public view returns (Power memory log) {
+        return devLogs[deviceId][logId]; 
+    }
 
-    function isDeviceAuthorized(address deviceOwner, bytes memory location, uint8 curStatus) public view returns(bool) {
+    function isDeviceAuthorized(address deviceOwner, bytes memory location, uint8 curStatus) public pure returns(bool) {
         // curStatus是房屋的当前的可用状态
 //        devInfos[deviceOwner]
         return false;
