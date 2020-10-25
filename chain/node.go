@@ -2,21 +2,28 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"github.com/chislab/go-fiscobcos/accounts/abi/bind"
 	"github.com/chislab/go-fiscobcos/client"
 	"github.com/chislab/go-fiscobcos/common"
 	"github.com/chislab/go-fiscobcos/core/types"
 	"github.com/gin-gonic/gin"
+	"leasehold/contracts/leasehold"
 	"os"
 )
 
 var (
+	GethCli  *client.Client
+
 	callOpts = &bind.CallOpts{GroupId: 1, From: common.HexToAddress("0x100")}
 	watchOpts = &bind.WatchOpts{Start: new(uint64), Context: context.Background()}
-	GethCli  *client.Client
 	tx       *types.Transaction
 	err      error
 	receipt  *types.Receipt
+	auths	= make(map[string]*bind.TransactOpts)
+
+	dLeaseHold *leasehold.Leasehold
+	chOrderMake = make(chan *leasehold.LeaseholdEvtOrderMade)
 )
 
 func init() {
@@ -34,7 +41,17 @@ func init() {
 		println("error:", err.Error())
 		os.Exit(1)
 	}
+
+	auths["admin"] = NewAuthFromPriKey()
+	auths["landlord"] = NewAuthFromPriKey()
+	auths["tenantry"] = NewAuthFromPriKey()
+	auths["property"] = NewAuthFromPriKey()
+	auths["factory"] = NewAuthFromPriKey()
+
+	_, tx, dLeaseHold, err = leasehold.DeployLeasehold(auths["admin"], GethCli)
+	fmt.Println("DeployLeasehold", tx.Hash().String())
 }
+
 
 func HandleMakeOrder(c *gin.Context) {
 	height, err := GethCli.BlockNumber(context.Background())
@@ -43,4 +60,3 @@ func HandleMakeOrder(c *gin.Context) {
 	}
 	c.JSON(200, height.String())
 }
-
