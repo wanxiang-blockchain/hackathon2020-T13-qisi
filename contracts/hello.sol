@@ -5,7 +5,7 @@ contract Hello {
    string message;
 
    constructor() public {
-      message = "hello from deng mimi";
+      message = "hello from chis";
    }
 
    event EvtSet(address from, string msg);
