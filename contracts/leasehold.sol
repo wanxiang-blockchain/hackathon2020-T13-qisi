@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 import "./openzeppelin/access/Ownable.sol";
 import "./device.sol";
 
-
 contract leasehold is Ownable, device {
 
     struct Role {
@@ -20,7 +19,7 @@ contract leasehold is Ownable, device {
 
     struct Room {
         address landlord;
-        address property;
+        address property; //物业
         address factory; // 家电厂商
         bytes location;    //地址+楼层
         uint256 price;       //房源定价
@@ -28,8 +27,6 @@ contract leasehold is Ownable, device {
         uint8 status;  // 0: 未装修, 1: 装修中, 2: 房屋可用, 3: 废弃
         bytes description;     //描述
     }
-
-    mapping (bytes => mapping (address => bytes)) devices;
 
     struct Order {
         address from;
@@ -42,6 +39,7 @@ contract leasehold is Ownable, device {
         uint8 status; // 0: idle, 1: waiting confirm, 2: confirmed, 3: discard
     }
 
+    mapping (bytes => mapping (address => bytes)) devices;
     mapping (address => Role) users;
     mapping (bytes => Room) rooms;
 
