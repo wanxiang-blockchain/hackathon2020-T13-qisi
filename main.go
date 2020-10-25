@@ -6,10 +6,10 @@ import (
 )
 
 func main() {
+	go chain.MqttServer()
 	r := gin.Default()
 
 	r.POST("/make_order", chain.HandleMakeOrder)
 
 	r.Run()
 }
-
